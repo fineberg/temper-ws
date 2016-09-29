@@ -1,4 +1,15 @@
 #! /usr/bin/env python
+#temper-ws
+#
+# A RESTful web service for accesing the USB temperHUM device
+#
+# Sam Fineberg sam@fineberg.net
+# September 2016
+#
+# added this line to /etc/udev/rules.d/99-com.rules in order to make temperhum accessible to non-root
+# ATTRS{idVendor}=="0c45", ATTRS{idProduct}=="7402", SUBSYSTEMS=="usb", ACTION=="add", MODE="0666", GROUP="plugdev"
+#
+
 import json
 from subprocess import call, check_output
 
@@ -11,16 +22,13 @@ class temphum:
     dew = 0.0
 
     def __init__(self):
-	response = check_output("date")
-	#response = check_output("/usr/local/bin/tempered", "-s", "Fahrenheit")
-	self.temp = 77
-	self.hum = 43
-	self.dew = 99
+	response = check_output("/usr/local/bin/tempered")
 	print response
     
     def read_device(self):
-	fp = open('out', 'r')
-	string = fp.read()
+	#fp = open('out', 'r')
+	#string = fp.read()
+	string = check_output("/usr/local/bin/tempered")
 	split = string.split(' ')
 	print string
 	print split
@@ -54,7 +62,8 @@ def json_ws (environ, start_response):
 
 # Instantiate the server
 httpd = make_server (
-    'localhost', # The host name
+#    'localhost', # The host name
+    '192.168.0.110', # The host name
     8051, # A port number where to wait for the request
     json_ws, # The application object name, in this case a function
 )
