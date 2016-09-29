@@ -9,6 +9,10 @@
 # added this line to /etc/udev/rules.d/99-com.rules in order to make temperhum accessible to non-root
 # ATTRS{idVendor}=="0c45", ATTRS{idProduct}=="7402", SUBSYSTEMS=="usb", ACTION=="add", MODE="0666", GROUP="plugdev"
 #
+#9/29/16
+#many assumptions, single device only for now.
+#fixed static ip, broke up methods
+#
 
 import json
 from subprocess import call, check_output
@@ -17,33 +21,38 @@ from subprocess import call, check_output
 from wsgiref.simple_server import make_server
 
 class temphum:
+    temper_command = ["/usr/local/bin/tempered", "-s", "Fahrenheit"]
     temp = 0.0
     hum = 0.0
     dew = 0.0
 
     def __init__(self):
-	response = check_output("/usr/local/bin/tempered")
-	print response
+	self.read_device()
     
     def read_device(self):
 	#fp = open('out', 'r')
 	#string = fp.read()
-	string = check_output("/usr/local/bin/tempered")
+	string = check_output(self.temper_command)
+	self.parse_output(string)
+
+#parse output and write to class/object properties
+    def parse_output(self, string):
 	split = string.split(' ')
 	print string
 	print split
 	print 'temperature', split[3]
+#remove % sign and comma
 	humidity=split[7].replace('%', '')
 	humidity=humidity.replace(',', '')
 	print 'humidity', humidity 
 	print 'dew point', split[10]
+#write values out
 	self.temp=float(split[3])
 	self.hum=float(humidity)
 	self.dew=float(split[10])
 
 
 def json_ws (environ, start_response):
-    th = temphum()
     th.read_device()
     obj = {
         "temperature" : th.temp,
@@ -57,16 +66,18 @@ def json_ws (environ, start_response):
         ('Content-Length', str(len(response_body)))
     ]
     start_response(status, response_headers)
-    return [response_body]
+    return response_body
 
 
 # Instantiate the server
 httpd = make_server (
 #    'localhost', # The host name
-    '192.168.0.110', # The host name
-    8051, # A port number where to wait for the request
+    '0.0.0.0', # The host name
+    33433, # A port number where to wait for the request
     json_ws, # The application object name, in this case a function
 )
 
-# Wait for a single request, serve it and quit
+#Instantiate the temperhum device object
+th = temphum()
+# Wait for a single request, serve it and do it again forever
 while  True: httpd.handle_request()
