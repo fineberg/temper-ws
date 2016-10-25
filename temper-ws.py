@@ -27,11 +27,12 @@ class temphum:
     dew = 0.0
 
     def __init__(self):
-	self.read_device()
+	self.read_device("Fahrenheit")
     
-    def read_device(self):
+    def read_device(self, scale):
 	#fp = open('out', 'r')
 	#string = fp.read()
+    	temper_command = ["/usr/local/bin/tempered", "-s", scale]
 	string = check_output(self.temper_command)
 	self.parse_output(string)
 
@@ -53,12 +54,18 @@ class temphum:
 
 
 def json_ws (environ, start_response):
-    th.read_device()
+    th.read_device("Fahrenheit")
     obj = {
-        "temperature" : th.temp,
       	"humidity" : th.hum,
-        "dewpoint" : th.dew,
+        "tempf" : th.temp,
+        "dewf" : th.dew,
     	}
+    th.read_device("celsius");
+    obj = obj.append({
+	"tempc" : th.temp,
+        "dewc" : th.dew,
+	})
+
     response_body = json.dumps(obj, indent=4, sort_keys=True)
     status = '200 OK'
     response_headers = [
