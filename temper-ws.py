@@ -21,7 +21,7 @@ from subprocess import call, check_output
 from wsgiref.simple_server import make_server
 
 class temphum:
-    temper_command = ["/usr/local/bin/tempered", "-s", "Fahrenheit"]
+    #temper_command = ["/usr/local/bin/tempered", "-s", "Fahrenheit"]
     temp = 0.0
     hum = 0.0
     dew = 0.0
@@ -33,7 +33,7 @@ class temphum:
 	#fp = open('out', 'r')
 	#string = fp.read()
     	temper_command = ["/usr/local/bin/tempered", "-s", scale]
-	string = check_output(self.temper_command)
+	string = check_output(temper_command)
 	self.parse_output(string)
 
 #parse output and write to class/object properties
@@ -56,15 +56,12 @@ class temphum:
 def json_ws (environ, start_response):
     th.read_device("Fahrenheit")
     obj = {
-      	"humidity" : th.hum,
-        "tempf" : th.temp,
-        "dewf" : th.dew,
+      	'humidity' : th.hum,
+        'tempf' : th.temp,
+        'dewf' : th.dew,
     	}
-    th.read_device("celsius");
-    obj = obj.append({
-	"tempc" : th.temp,
-        "dewc" : th.dew,
-	})
+    th.read_device("Celsius");
+    obj.update ({ 'tempc' : th.temp, 'dewc' : th.dew, })
 
     response_body = json.dumps(obj, indent=4, sort_keys=True)
     status = '200 OK'
