@@ -1,6 +1,8 @@
 
 import requests
 import json
+import subprocess
+import datetime
 
 link = "http://attic.fineberg.net:33433"
 f = requests.get(link)
@@ -12,8 +14,10 @@ f = requests.get(link)
 #print "Basement:\n", f.text
 basement = json.loads(f.text)
 
-file = open("temphum-vals", "a")
-str = str(attic['tempf']) + "," + str(attic['humidity']) + "," + str(basement['tempf']) + "," + str(basement['humidity'])+"\n"
+string = datetime.datetime.now().isoformat()
+
+file = open("/home/sam/temphum-vals", "a")
+str = string+","+str(attic['tempf']) + "," + str(attic['humidity']) + "," + str(basement['tempf']) + "," + str(basement['humidity'])+"\n"
 file.write(str)
 
 print "attic\t\tbasement"
