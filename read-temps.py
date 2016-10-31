@@ -12,5 +12,5 @@ f = requests.get(link)
 print "Basement:\n", f.text
 basement = json.loads(f.text)
 
-print "Attic temp: ", attic['temperature']
-print "Basement temp", basement['temperature']
+print "Attic temp: ", attic['tempf']
+print "Basement temp", basement['tempf']
