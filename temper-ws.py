@@ -15,6 +15,7 @@
 #
 
 import json
+import time
 from subprocess import call, check_output
 
 # Python's bundled WSGI server
@@ -33,8 +34,18 @@ class temphum:
 	#fp = open('out', 'r')
 	#string = fp.read()
     	temper_command = ["/usr/local/bin/tempered", "-s", scale]
-	string = check_output(temper_command)
-	self.parse_output(string)
+
+	error = 0
+	while (error < 10):
+           try:
+	      string = check_output(temper_command)
+              self.parse_output(string)
+	      break
+	   except:
+	      error = error + 1
+              time.sleep(1)
+	      print "retry.."
+	if (error >= 10): raise
 
 #parse output and write to class/object properties
     def parse_output(self, string):
@@ -82,6 +93,20 @@ httpd = make_server (
 )
 
 #Instantiate the temperhum device object
-th = temphum()
+#th = temphum()
+error = 0
+while (error < 10):
+   try:
+      th = temphum()
+      break
+   except:
+      error = error + 1
+      print "retry.."
+if (error >= 10): raise
+
 # Wait for a single request, serve it and do it again forever
-while  True: httpd.handle_request()
+while  True: 
+   try:
+      httpd.handle_request()
+   except:
+      pass
