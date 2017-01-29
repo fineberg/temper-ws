@@ -43,12 +43,32 @@ while (not ok) and (errors < 10) :
 
 if (errors >= 10): raise
 
+ok = False
+errors = 0
+while (not ok) and (errors < 10) :
+   link = "http://outdoor.fineberg.net:33433"
+   try: 
+      f = requests.get(link)
+#      print "Basement:\n", f.text
+      outdoor = json.loads(f.text)
+      if (outdoor['tempf'] < 0): 
+         ok=false
+      else: 
+         ok = True
+      break	
+   except:
+      print "try again... outdoor:\n", f.text
+      errors = errors + 1
+
+if (errors >= 10): raise
+
 string = datetime.datetime.now().isoformat()
 
 file = open("/home/sam/temphum-vals", "a")
-str = string+","+str(attic['tempf']) + "," + str(attic['humidity']) + "," + str(basement['tempf']) + "," + str(basement['humidity'])+"\n"
+str = string+","+str(attic['tempf']) + "," + str(attic['humidity']) + "," + str(basement['tempf']) + "," + str(basement['humidity'])+","+str(outdoor['tempf'])+","+str(outdoor['humidity'])+"\n"
 file.write(str)
+print str
 
-print "attic\t\tbasement"
-print "temp\thum\ttemp\thum"
-print attic['tempf'],  "\t", attic['humidity'], "\t", basement['tempf'], "\t",  basement['humidity']
+print "attic\t\tbasement\toutdoor"
+print "temp\thum\ttemp\thum\ttemp\thum"
+print attic['tempf'],  "\t", attic['humidity'], "\t", basement['tempf'], "\t",  basement['humidity'], "\t", outdoor['tempf'], "\t", outdoor['humidity']

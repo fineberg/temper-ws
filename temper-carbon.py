@@ -59,6 +59,25 @@ while (not ok) and (errors < 10) :
 
 if (errors >= 10): raise
 
+ok = False
+errors = 0
+while (not ok) and (errors < 10) :
+   link = "http://outdoor.fineberg.net:33433"
+   try: 
+      f = requests.get(link)
+#      print "Basement:\n", f.text
+      outdoor = json.loads(f.text)
+      if (outdoor['tempf'] < 0): 
+         ok=false
+      else: 
+         ok = True
+      break	
+   except:
+      print "try again... outdoor:\n", f.text
+      errors = errors + 1
+
+if (errors >= 10): raise
+
 datestring = str(int(time.time()))
 
 strout = "temphum.attic.tempc "+str(attic['tempc']) + " " + datestring+"\n"
@@ -93,3 +112,18 @@ strout = "temphum.basement.dewf "+str(basement['dewf']) +  " " +datestring+"\n"
 print strout
 netcat(graphite_host, graphite_port, strout)
 
+strout = "temphum.outdoor.tempc "+str(outdoor['tempc']) + " " + datestring+"\n"
+print strout
+netcat(graphite_host, graphite_port, strout)
+strout = "temphum.outdoor.tempf "+str(outdoor['tempf']) +  " " +datestring+"\n"
+print strout
+netcat(graphite_host, graphite_port, strout)
+strout = "temphum.outdoor.humidty "+str(outdoor['humidity']) +  " " +datestring+"\n"
+print strout
+netcat(graphite_host, graphite_port, strout)
+strout = "temphum.outdoor.dewc "+str(outdoor['dewc']) +  " " +datestring+"\n"
+print strout
+netcat(graphite_host, graphite_port, strout)
+strout = "temphum.outdoor.dewf "+str(outdoor['dewf']) +  " " +datestring+"\n"
+print strout
+netcat(graphite_host, graphite_port, strout)
